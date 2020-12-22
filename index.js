@@ -10,7 +10,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 sharedsession = require("express-socket.io-session");
 //mongoose.connect('mongodb://127.0.0.1:27017/Chat_app', {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.connect(process.env.MONGO_DB_URI, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect('mongodb+srv://admin:admin1@cluster0.orqkl.mongodb.net/Chat_app?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true});
 
 //using mongodb 
 const db = mongoose.connection;
