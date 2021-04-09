@@ -32,30 +32,35 @@ exports = module.exports = function(io,model,model2,model3,clients){
             */
           })
           socket.on('request', data => {
-            let index = clients.findIndex(element => element.user_id === contact_id)
-            let send = true
-            if(index){
+            
               model2.find({ 'email': data.contact_email }, async function (err, userx) {
                 if (err) return handleError(err);
                 if(userx.length==0){
                   send = false
                 }
-                contact_id = userx[0]._id
+                contact_id = JSON.stringify(userx[0]._id)
                 username = userx[0].username
+                contact_id2 = userx[0]._id
+                
+                console.log(contact_id)
+                let index = clients.findIndex(item => {console.log(item.user_id); console.log(typeof(contact_id))
+                   return `"${item.user_id}"` === contact_id})
           
-                model2.find({$and: [{'_id':socket.handshake.session.User_id},{'contacts.id': contact_id}]}, async function (err, userx) {
+                model2.find({$and: [{'_id':socket.handshake.session.User_id},{'contacts': userx[0]._id}]}, async function (err, userx) {
                   if (err) throw(err);
                   if(userx.length>=1){
                     send = false
                   }
-                  if(send){
-                  io.to(clients[index].socket_id).emit('request', {sender_id: contact_id, sender_username: username} );
+                  console.log(index)
+                  if(index>=0){
+                    console.log(index)
+                  io.to(clients[index].socket_id).emit('request', {sender_id: contact_id2, sender_username: socket.handshake.session.username} );
                   io.to(clients[index].socket_id).emit('notify', {sender_id: socket.handshake.session.User_id, sender_username: socket.handshake.session.username, body: `${socket.handshake.session.username} has sent request `} );
                   }
                 });
               })
             }
-          })
+          )
           /*
           socket.on('check_status', data => {
             let index = clients.findIndex(element => element.user_id === data.user_id)

@@ -74,12 +74,13 @@ const socket = io();
         }
         })
 
-
+        /*
         document.querySelector('.add-contact').onsubmit = function () {
         
-            socket.emit('send_request', {contact_email: document.querySelector('#user').value} );
+            socket.emit('request', {contact_email: document.querySelector('#user').value} );
           
         }
+        */
 
         socket.on('disconnect', function(){
           // Do stuff (probably some jQuery)

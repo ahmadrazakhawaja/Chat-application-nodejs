@@ -9,8 +9,8 @@ const MongoStore = require('connect-mongo')(session);
 const path = require('path');
 const mongoose = require('mongoose');
 sharedsession = require("express-socket.io-session");
-//mongoose.connect('mongodb://127.0.0.1:27017/Chat_app', {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.connect('mongodb+srv://admin:admin1@cluster0.orqkl.mongodb.net/Chat_app?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect('mongodb://127.0.0.1:27017/Chat_app', {useNewUrlParser: true, useUnifiedTopology: true});
+//mongoose.connect('mongodb+srv://admin:admin1@cluster0.orqkl.mongodb.net/Chat_app?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true});
 
 //using mongodb 
 const db = mongoose.connection;
@@ -50,11 +50,23 @@ const silence = new user({ username: 'ahmad',email: 'ahmadraza@gmail.com' });
 silence.save()
 */
 /*
-user.findOneAndRemove({email:'ahmad123@123'},function (err, user) {
+user.findOneAndRemove({email:'ahmad1@123'},function (err, user) {
   if (err) return handleError(err);
   // Prints "Space Ghost is a talk show host".)
 })
 */
+
+user.update({email:'ahmad12@123'},{$set: {"requests":[]}},function (err, user) {
+  if (err) return handleError(err);
+  // Prints "Space Ghost is a talk show host".)
+})
+/*
+user.update({email:'ahmad1@123'},{$set: {"requests":[]}},function (err, user) {
+  if (err) return handleError(err);
+  // Prints "Space Ghost is a talk show host".)
+})
+*/
+
 
 
 // server started listening on port 3000.
@@ -145,7 +157,7 @@ app.post('/login', redirecthome, async function(req,res) {
   var flag = false
    user.find({ 'email': email },'email password username', async function (err, user) {
     if (err) return handleError(err);
-    // Prints "Space Ghost is a talk show host".
+    
     if(user.length==1){
       const resk = await bcrypt.compare(password,user[0].password)
       if(resk){
@@ -268,7 +280,7 @@ app.post('/add-contact',redirectlogin, async function(req,res){
       contact_id = userx[0]._id
       username = userx[0].username
 
-      user.find({$and: [{'_id':req.session.User_id},{'requests': contact_id}]}, async function (err, userx) {
+      user.find({$and: [{'_id':req.session.User_id},{$or:[{'contacts': contact_id},{'outgoing_requests': contact_id}]}]}, async function (err, userx) {
         if (err) throw(err);
         if(userx.length>=1){
            return res.status(400).json({
@@ -301,18 +313,24 @@ app.post('/accept-request',redirectlogin, async function(req,res){
   try{
     var contact_id = req.body.contact_id
     var username = req.body.username
-        const update = { $push: { contacts: contact_id }, $pull: { requests: contact_id }  };
+    console.log(contact_id)
+    console.log(username)
+        const update = { $push: { contacts: contact_id } };
         user.update({'_id':req.session.User_id},update, async function (err, userx){
         if (err) throw(err);
-        user.update({'_id':req.body.contact_id},{ $push: { contacts: req.session.User_id }, $pull: { outgoing_requests: req.session.User_id }}, async function (err, userx){
+        user.update({'_id':req.session.User_id},{$pull: { requests: contact_id }}, async function (err, userx){
           if (err) throw(err);
+        user.update({'_id':req.body.contact_id},{ $push: { contacts: req.session.User_id }}, async function (err, userx){
+          if (err) throw(err);
+          user.update({'_id':req.body.contact_id},{$pull: { outgoing_requests: req.session.User_id} }, async function (err, userx){
           return res.status(201).json({
           "contact_id": contact_id,
           "username": username
           })
-        
+        })
       });
     })
+  })
 }
   catch{
    return res.status(400).json({

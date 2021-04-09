@@ -373,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     function fetchrequest(){
+        console.log(amountscrolled(document.querySelector('#sidebar')))
         if((amountscrolled(document.querySelector('#sidebar'))>70 || count2===0) && count2!=-1){
             fetch('/retrieve-requests', {
                 method: 'POST',
@@ -397,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
               .then(result => {
                   if(error) {
-                    
+                
                     }
                   else{
                     count2=count2+result.count;
@@ -581,9 +582,10 @@ document.addEventListener('DOMContentLoaded', function() {
     */
 
 
-     
+    
     document.querySelector('#sidebar').addEventListener("scroll",scrollfetch,false)
-    document.querySelector('#sidebar').addEventListener("scroll",fetchrequest,false)
+    fetchrequest()
+    //document.querySelector('#sidebar').addEventListener("scroll",fetchrequest,false)
     /*
     console.log(document.querySelector('.babble.tab-pane.fade.active.show').querySelector('.chat').querySelector('.content'))
     document.querySelector('.babble.tab-pane.fade.active.show ').querySelector('.chat').querySelector('.content').addEventListener("scroll",messagefetch,false)
@@ -592,6 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelector('.add-contact').onsubmit = function() {
         var error = false
+        socket.emit('request', {contact_email: document.querySelector('#user').value} );
         fetch('/add-contact', {
             method: 'POST',
             body: JSON.stringify({
